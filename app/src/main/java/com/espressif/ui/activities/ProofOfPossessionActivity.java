@@ -55,6 +55,8 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
     private ESPProvisionManager provisionManager;
     private SharedPreferences sharedPreferences;
 
+    public static final String DEFAULT = "N/A";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,16 +114,7 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            final String pop = etPop.getText().toString();
-            Log.d(TAG, "POP : " + pop);
-            provisionManager.getEspDevice().setProofOfPossession(pop);
-            ArrayList<String> deviceCaps = provisionManager.getEspDevice().getDeviceCapabilities();
-
-            if (deviceCaps.contains("wifi_scan")) {
-                goToWiFiScanListActivity();
-            } else {
-                goToWiFiConfigActivity();
-            }
+            showAlertForUsingSavedCredentials();
         }
     };
 
@@ -171,6 +164,17 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
         finish();
     }
 
+    private void goForProvisioning(String ssid, String password, String customData) {
+
+        finish();
+        Intent provisionIntent = new Intent(getApplicationContext(), ProvisionActivity.class);
+        provisionIntent.putExtras(getIntent());
+        provisionIntent.putExtra(AppConstants.KEY_WIFI_SSID, ssid);
+        provisionIntent.putExtra(AppConstants.KEY_WIFI_PASSWORD, password);
+        provisionIntent.putExtra(AppConstants.KEY_CUSTOM_DATA, customData);
+        startActivity(provisionIntent);
+    }
+
     private void showAlertForDeviceDisconnected() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -185,6 +189,53 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 finish();
+            }
+        });
+        builder.show();
+    }
+
+    private void showAlertForUsingSavedCredentials() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(false);
+        builder.setTitle(R.string.save_data_question_title);
+
+        String ssid, password, customData;
+
+        sharedPreferences = getSharedPreferences(AppConstants.CRED_PREFERENCES, Context.MODE_PRIVATE);
+        ssid = sharedPreferences.getString(AppConstants.KEY_WIFI_SSID, DEFAULT);
+        password = sharedPreferences.getString(AppConstants.KEY_WIFI_PASSWORD, DEFAULT);
+        customData = sharedPreferences.getString(AppConstants.KEY_CUSTOM_DATA, DEFAULT);
+
+        if (ssid.equals(DEFAULT) || password.equals(DEFAULT) || customData.equals(DEFAULT)){
+            Log.d(TAG, "Data not found!");
+        }
+        else {
+            Log.d(TAG, "Data found!");
+        }
+
+        // Set up the buttons
+        builder.setPositiveButton(R.string.btn_use, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                goForProvisioning(ssid, password, customData);
+            }
+        });
+
+        builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                final String pop = etPop.getText().toString();
+                Log.d(TAG, "POP : " + pop);
+                provisionManager.getEspDevice().setProofOfPossession(pop);
+                ArrayList<String> deviceCaps = provisionManager.getEspDevice().getDeviceCapabilities();
+
+                if (deviceCaps.contains("wifi_scan")) {
+                    goToWiFiScanListActivity();
+                } else {
+                    goToWiFiConfigActivity();
+                }
             }
         });
         builder.show();
