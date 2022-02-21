@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
-import com.espressif.AppConstants;
+import com.espressif.ui.constants.AppConstants;
 import com.espressif.wifi_provisioning.R;
 
 public class SettingsActivity extends AppCompatActivity {

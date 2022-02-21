@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.espressif;
+package com.espressif.ui.constants;
 
 public class AppConstants {
 
@@ -31,9 +31,11 @@ public class AppConstants {
     public static final String KEY_SECURITY_TYPE = "security_type";
 
     public static final String ESP_PREFERENCES = "Esp_Preferences";
+    public static final String CRED_PREFERENCES = "Cred_Preferences";
 
     public static final String DEVICE_TYPE_SOFTAP = "softap";
     public static final String DEVICE_TYPE_BLE = "ble";
     public static final String DEVICE_TYPE_BOTH = "both";
     public static final String DEVICE_TYPE_DEFAULT = DEVICE_TYPE_BOTH;
+
 }

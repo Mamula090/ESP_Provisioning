@@ -14,20 +14,27 @@
 
 package com.espressif.ui.activities;
 
+import static java.lang.Thread.sleep;
+
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.widget.ContentLoadingProgressBar;
 
-import com.espressif.AppConstants;
+import com.espressif.provisioning.listeners.ResponseListener;
+import com.espressif.ui.constants.AppConstants;
 import com.espressif.provisioning.DeviceConnectionEvent;
 import com.espressif.wifi_provisioning.R;
 import com.espressif.provisioning.ESPConstants;
@@ -38,6 +45,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
 public class ProvisionActivity extends AppCompatActivity {
 
     private static final String TAG = ProvisionActivity.class.getSimpleName();
@@ -47,12 +57,15 @@ public class ProvisionActivity extends AppCompatActivity {
     private ContentLoadingProgressBar progress1, progress2, progress3;
     private TextView tvErrAtStep1, tvErrAtStep2, tvErrAtStep3, tvProvError;
 
-    private CardView btnOk;
+    private CardView btnOk, btnSave;
     private TextView txtOkBtn;
 
     private String ssidValue, passphraseValue = "";
+    private String customData = "";
     private ESPProvisionManager provisionManager;
     private boolean isProvisioningCompleted = false;
+
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +76,7 @@ public class ProvisionActivity extends AppCompatActivity {
         Intent intent = getIntent();
         ssidValue = intent.getStringExtra(AppConstants.KEY_WIFI_SSID);
         passphraseValue = intent.getStringExtra(AppConstants.KEY_WIFI_PASSWORD);
+        customData = intent.getStringExtra(AppConstants.KEY_CUSTOM_DATA);
         provisionManager = ESPProvisionManager.getInstance(getApplicationContext());
         initViews();
         EventBus.getDefault().register(this);
@@ -108,6 +122,28 @@ public class ProvisionActivity extends AppCompatActivity {
         }
     };
 
+    private View.OnClickListener saveBtnClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            saveCredentials();
+            Toast.makeText(getApplicationContext(),"Credentials saved!",Toast.LENGTH_SHORT).show();
+            //finish();
+        }
+    };
+
+    private void saveCredentials() {
+
+        sharedPreferences = getSharedPreferences(AppConstants.CRED_PREFERENCES, Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(AppConstants.KEY_WIFI_SSID, ssidValue);
+        editor.putString(AppConstants.KEY_WIFI_PASSWORD, passphraseValue);
+        editor.putString(AppConstants.KEY_CUSTOM_DATA, customData);
+        editor.apply();
+
+    }
+
     private void initViews() {
 
         tvTitle = findViewById(R.id.main_toolbar_title);
@@ -132,17 +168,27 @@ public class ProvisionActivity extends AppCompatActivity {
         tvCancel.setVisibility(View.GONE);
 
         btnOk = findViewById(R.id.btn_ok);
+        btnSave = findViewById(R.id.btn_save);
         txtOkBtn = findViewById(R.id.text_btn);
         btnOk.findViewById(R.id.iv_arrow).setVisibility(View.GONE);
 
         txtOkBtn.setText(R.string.btn_ok);
         btnOk.setOnClickListener(okBtnClickListener);
+        btnSave.setOnClickListener(saveBtnClickListener);
     }
 
     private void doProvisioning() {
 
         tick1.setVisibility(View.GONE);
         progress1.setVisibility(View.VISIBLE);
+        if(customData != null){
+            sendDataToCustomEndpoint();
+            try {
+                sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         provisionManager.getEspDevice().provision(ssidValue, passphraseValue, new ProvisionListener() {
 
@@ -297,16 +343,35 @@ public class ProvisionActivity extends AppCompatActivity {
         });
     }
 
+    private void sendDataToCustomEndpoint(){
+
+        provisionManager.getEspDevice().sendDataToCustomEndPoint(ESPConstants.HANDLER_PROV_CONFIG_CUSTOM_DATA, customData.getBytes(), new ResponseListener() {
+            @Override
+            public void onSuccess(byte[] returnData) {
+                Log.d(TAG,"Data sent");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.d(TAG,"Data is not sent");
+            }
+        });
+    }
+
     private void showLoading() {
 
         btnOk.setEnabled(false);
         btnOk.setAlpha(0.5f);
+        btnSave.setEnabled(false);
+        btnSave.setAlpha(0.5f);
     }
 
     public void hideLoading() {
 
         btnOk.setEnabled(true);
         btnOk.setAlpha(1f);
+        btnSave.setEnabled(true);
+        btnSave.setAlpha(1f);
     }
 
     private void showAlertForDeviceDisconnected() {

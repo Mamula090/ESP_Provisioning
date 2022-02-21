@@ -27,7 +27,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.espressif.AppConstants;
+import com.espressif.ui.constants.AppConstants;
 import com.espressif.provisioning.DeviceConnectionEvent;
 import com.espressif.provisioning.ESPConstants;
 import com.espressif.provisioning.ESPProvisionManager;
@@ -45,7 +45,7 @@ public class WiFiConfigActivity extends AppCompatActivity {
     private CardView btnNext;
     private TextView txtNextBtn;
 
-    private EditText etSsid, etPassword;
+    private EditText etSsid, etPassword, etCustomData;
     private ESPProvisionManager provisionManager;
 
     @Override
@@ -92,13 +92,14 @@ public class WiFiConfigActivity extends AppCompatActivity {
 
             String ssid = etSsid.getText().toString();
             String password = etPassword.getText().toString();
+            String customData = etCustomData.getText().toString();
 
             if (TextUtils.isEmpty(ssid)) {
                 etSsid.setError(getString(R.string.error_ssid_empty));
                 return;
             }
 
-            goToProvisionActivity(ssid, password);
+            goToProvisionActivity(ssid, password, customData);
         }
     };
 
@@ -118,6 +119,7 @@ public class WiFiConfigActivity extends AppCompatActivity {
         tvCancel = findViewById(R.id.btn_cancel);
         etSsid = findViewById(R.id.et_ssid_input);
         etPassword = findViewById(R.id.et_password_input);
+        etCustomData = findViewById(R.id.et_customData);
 
         String deviceName = provisionManager.getEspDevice().getDeviceName();
         if (!TextUtils.isEmpty(deviceName)) {
@@ -137,13 +139,14 @@ public class WiFiConfigActivity extends AppCompatActivity {
         btnNext.setOnClickListener(nextBtnClickListener);
     }
 
-    private void goToProvisionActivity(String ssid, String password) {
+    private void goToProvisionActivity(String ssid, String password, String customData) {
 
         finish();
         Intent provisionIntent = new Intent(getApplicationContext(), ProvisionActivity.class);
         provisionIntent.putExtras(getIntent());
         provisionIntent.putExtra(AppConstants.KEY_WIFI_SSID, ssid);
         provisionIntent.putExtra(AppConstants.KEY_WIFI_PASSWORD, password);
+        provisionIntent.putExtra(AppConstants.KEY_CUSTOM_DATA, customData);
         startActivity(provisionIntent);
     }
 

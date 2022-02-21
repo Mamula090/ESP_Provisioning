@@ -122,7 +122,6 @@ public class Session {
         final byte[] encryptedData = security.encrypt(data);
 
         if (isSessionEstablished) {
-
             transport.sendConfigData(path, encryptedData, new ResponseListener() {
 
                 @Override

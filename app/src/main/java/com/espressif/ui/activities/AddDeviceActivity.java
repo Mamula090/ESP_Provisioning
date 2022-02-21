@@ -43,7 +43,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
-import com.espressif.AppConstants;
+import com.espressif.ui.constants.AppConstants;
 import com.espressif.provisioning.DeviceConnectionEvent;
 import com.espressif.provisioning.ESPConstants;
 import com.espressif.provisioning.ESPDevice;

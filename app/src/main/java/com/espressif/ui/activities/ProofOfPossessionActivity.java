@@ -14,8 +14,10 @@
 
 package com.espressif.ui.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,6 +32,7 @@ import androidx.cardview.widget.CardView;
 import com.espressif.provisioning.DeviceConnectionEvent;
 import com.espressif.provisioning.ESPConstants;
 import com.espressif.provisioning.ESPProvisionManager;
+import com.espressif.ui.constants.AppConstants;
 import com.espressif.wifi_provisioning.R;
 
 import org.greenrobot.eventbus.EventBus;
@@ -50,6 +53,7 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
     private TextView tvPopInstruction;
     private EditText etPop;
     private ESPProvisionManager provisionManager;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +112,6 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-
             final String pop = etPop.getText().toString();
             Log.d(TAG, "POP : " + pop);
             provisionManager.getEspDevice().setProofOfPossession(pop);
@@ -184,7 +187,6 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
                 finish();
             }
         });
-
         builder.show();
     }
 }

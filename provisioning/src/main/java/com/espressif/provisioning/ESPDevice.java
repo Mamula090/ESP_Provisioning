@@ -705,7 +705,6 @@ public class ESPDevice {
     }
 
     private void sendWiFiConfig(final String ssid, final String passphrase, final ProvisionListener provisionListener) {
-
         byte[] scanCommand = MessengeHelper.prepareWiFiConfigMsg(ssid, passphrase);
 
         session.sendDataToDevice(ESPConstants.HANDLER_PROV_CONFIG, scanCommand, new ResponseListener() {

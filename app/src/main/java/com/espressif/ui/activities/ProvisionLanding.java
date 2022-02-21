@@ -32,7 +32,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
 
-import com.espressif.AppConstants;
+import com.espressif.ui.constants.AppConstants;
 import com.espressif.wifi_provisioning.R;
 import com.espressif.provisioning.DeviceConnectionEvent;
 import com.espressif.provisioning.ESPConstants;
@@ -107,6 +107,7 @@ public class ProvisionLanding extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
 
             case REQUEST_FINE_LOCATION:

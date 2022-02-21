@@ -60,6 +60,24 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/customData_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/password_input_layout"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="30dp">
+
+        <EditText
+            android:id="@+id/et_customData_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/custom_data"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
     <include
         android:id="@+id/btn_next"
         layout="@layout/button"

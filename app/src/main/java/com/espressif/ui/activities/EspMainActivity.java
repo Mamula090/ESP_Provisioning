@@ -40,7 +40,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 
-import com.espressif.AppConstants;
+import com.espressif.ui.constants.AppConstants;
 import com.espressif.provisioning.ESPConstants;
 import com.espressif.provisioning.ESPProvisionManager;
 import com.espressif.wifi_provisioning.BuildConfig;

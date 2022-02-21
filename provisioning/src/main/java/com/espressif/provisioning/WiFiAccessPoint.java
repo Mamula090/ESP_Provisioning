@@ -26,6 +26,7 @@ public class WiFiAccessPoint implements Parcelable {
     private int rssi;
     private int security;
     private String password;
+    private String customData;
 
     public String getWifiName() {
         return wifiName;
@@ -68,6 +69,7 @@ public class WiFiAccessPoint implements Parcelable {
         rssi = in.readInt();
         security = in.readInt();
         password = in.readString();
+        customData = in.readString();
     }
 
     public static final Creator<WiFiAccessPoint> CREATOR = new Creator<WiFiAccessPoint>() {
@@ -94,5 +96,6 @@ public class WiFiAccessPoint implements Parcelable {
         dest.writeInt(rssi);
         dest.writeInt(security);
         dest.writeString(password);
+        dest.writeString(customData);
     }
 }

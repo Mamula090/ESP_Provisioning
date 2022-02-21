@@ -16,6 +16,7 @@ package com.espressif.ui.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -23,6 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -34,7 +36,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.espressif.AppConstants;
+import com.espressif.ui.constants.AppConstants;
 import com.espressif.provisioning.DeviceConnectionEvent;
 import com.espressif.provisioning.ESPConstants;
 import com.espressif.provisioning.ESPProvisionManager;
@@ -53,6 +55,8 @@ import java.util.ArrayList;
 public class WiFiScanActivity extends AppCompatActivity {
 
     private static final String TAG = WiFiScanActivity.class.getSimpleName();
+
+    public static final String DEFAULT = "N/A";
 
     private Handler handler;
     private ImageView ivRefresh;
@@ -101,7 +105,7 @@ public class WiFiScanActivity extends AppCompatActivity {
                 if (ssid.equals(getString(R.string.join_other_network))) {
                     askForNetwork(wifiAPList.get(pos).getWifiName(), wifiAPList.get(pos).getSecurity());
                 } else if (wifiAPList.get(pos).getSecurity() == ESPConstants.WIFI_OPEN) {
-                    goForProvisioning(wifiAPList.get(pos).getWifiName(), "");
+                    goForProvisioning(wifiAPList.get(pos).getWifiName(), "","");
                 } else {
                     askForNetwork(wifiAPList.get(pos).getWifiName(), wifiAPList.get(pos).getSecurity());
                 }
@@ -210,8 +214,12 @@ public class WiFiScanActivity extends AppCompatActivity {
         final View dialogView = inflater.inflate(R.layout.dialog_wifi_network, null);
         builder.setView(dialogView);
 
-        final EditText etSsid = dialogView.findViewById(R.id.et_ssid);
-        final EditText etPassword = dialogView.findViewById(R.id.et_password);
+        CheckBox chckBoxUseSavedData;
+
+        EditText etSsid = dialogView.findViewById(R.id.et_ssid);
+        EditText etPassword = dialogView.findViewById(R.id.et_password);
+        EditText etCustomData = dialogView.findViewById(R.id.et_customData);
+        chckBoxUseSavedData = dialogView.findViewById(R.id.chckBoxUseSavedData);
 
         if (ssid.equals(getString(R.string.join_other_network))) {
 
@@ -223,49 +231,72 @@ public class WiFiScanActivity extends AppCompatActivity {
             etSsid.setVisibility(View.GONE);
         }
 
+        SharedPreferences sharedPreferences = getSharedPreferences(AppConstants.CRED_PREFERENCES, MODE_PRIVATE);
+
+        String ssidd = sharedPreferences.getString(AppConstants.KEY_WIFI_SSID, DEFAULT);
+        String password1 =  sharedPreferences.getString(AppConstants.KEY_WIFI_PASSWORD, DEFAULT);
+        String customData1 = sharedPreferences.getString(AppConstants.KEY_CUSTOM_DATA, DEFAULT);
+
         builder.setPositiveButton(R.string.btn_provision, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
                 String password = etPassword.getText().toString();
+                String customData = etCustomData.getText().toString();
 
-                if (ssid.equals(getString(R.string.join_other_network))) {
+                if(!chckBoxUseSavedData.isChecked()) {
 
-                    String networkName = etSsid.getText().toString();
+                    if (ssid.equals(getString(R.string.join_other_network))) {
 
-                    if (TextUtils.isEmpty(networkName)) {
+                        String networkName = etSsid.getText().toString();
 
-                        etSsid.setError(getString(R.string.error_ssid_empty));
+                        if (TextUtils.isEmpty(networkName)) {
 
-                    } else {
-
-                        dialog.dismiss();
-                        goForProvisioning(networkName, password);
-                    }
-
-                } else {
-
-                    if (TextUtils.isEmpty(password)) {
-
-                        if (authMode != ESPConstants.WIFI_OPEN) {
-
-                            TextInputLayout passwordLayout = dialogView.findViewById(R.id.layout_password);
-                            passwordLayout.setError(getString(R.string.error_password_empty));
+                            etSsid.setError(getString(R.string.error_ssid_empty));
 
                         } else {
 
                             dialog.dismiss();
-                            goForProvisioning(ssid, password);
+                            goForProvisioning(networkName, password, customData);
                         }
 
                     } else {
 
-                        if (authMode == ESPConstants.WIFI_OPEN) {
-                            password = "";
+                        if (TextUtils.isEmpty(password)) {
+
+                            if (authMode != ESPConstants.WIFI_OPEN) {
+
+                                TextInputLayout passwordLayout = dialogView.findViewById(R.id.passwordIDD);
+                                passwordLayout.setError(getString(R.string.error_password_empty));
+
+                            } else {
+
+                                dialog.dismiss();
+                                goForProvisioning(ssid, password, customData);
+                            }
+
+                        } else {
+
+                            if (authMode == ESPConstants.WIFI_OPEN) {
+                                password = "";
+                            }
+                            dialog.dismiss();
+                            goForProvisioning(ssid, password, customData);
                         }
+                    }
+
+                }else{
+
+                    if (password1.equals(DEFAULT) || customData1.equals(DEFAULT)){
+                        Log.d(TAG, "Data not found");
+                    }
+                    else {
+                        etPassword.setVisibility(View.GONE);
+                        etCustomData.setVisibility(View.GONE);
                         dialog.dismiss();
-                        goForProvisioning(ssid, password);
+                        goForProvisioning(ssidd, password1, customData1);
+                        Log.d(TAG, "Data found");
                     }
                 }
             }
@@ -284,13 +315,14 @@ public class WiFiScanActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private void goForProvisioning(String ssid, String password) {
+    private void goForProvisioning(String ssid, String password, String customData) {
 
         finish();
         Intent provisionIntent = new Intent(getApplicationContext(), ProvisionActivity.class);
         provisionIntent.putExtras(getIntent());
         provisionIntent.putExtra(AppConstants.KEY_WIFI_SSID, ssid);
         provisionIntent.putExtra(AppConstants.KEY_WIFI_PASSWORD, password);
+        provisionIntent.putExtra(AppConstants.KEY_CUSTOM_DATA, customData);
         startActivity(provisionIntent);
     }
 
