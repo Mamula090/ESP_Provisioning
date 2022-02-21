@@ -56,8 +56,6 @@ public class WiFiScanActivity extends AppCompatActivity {
 
     private static final String TAG = WiFiScanActivity.class.getSimpleName();
 
-    public static final String DEFAULT = "N/A";
-
     private Handler handler;
     private ImageView ivRefresh;
     private ListView wifiListView;
@@ -214,12 +212,9 @@ public class WiFiScanActivity extends AppCompatActivity {
         final View dialogView = inflater.inflate(R.layout.dialog_wifi_network, null);
         builder.setView(dialogView);
 
-        CheckBox chckBoxUseSavedData;
-
         EditText etSsid = dialogView.findViewById(R.id.et_ssid);
         EditText etPassword = dialogView.findViewById(R.id.et_password);
         EditText etCustomData = dialogView.findViewById(R.id.et_customData);
-        chckBoxUseSavedData = dialogView.findViewById(R.id.chckBoxUseSavedData);
 
         if (ssid.equals(getString(R.string.join_other_network))) {
 
@@ -231,12 +226,6 @@ public class WiFiScanActivity extends AppCompatActivity {
             etSsid.setVisibility(View.GONE);
         }
 
-        SharedPreferences sharedPreferences = getSharedPreferences(AppConstants.CRED_PREFERENCES, MODE_PRIVATE);
-
-        String ssidd = sharedPreferences.getString(AppConstants.KEY_WIFI_SSID, DEFAULT);
-        String password1 =  sharedPreferences.getString(AppConstants.KEY_WIFI_PASSWORD, DEFAULT);
-        String customData1 = sharedPreferences.getString(AppConstants.KEY_CUSTOM_DATA, DEFAULT);
-
         builder.setPositiveButton(R.string.btn_provision, new DialogInterface.OnClickListener() {
 
             @Override
@@ -244,8 +233,6 @@ public class WiFiScanActivity extends AppCompatActivity {
 
                 String password = etPassword.getText().toString();
                 String customData = etCustomData.getText().toString();
-
-                if(!chckBoxUseSavedData.isChecked()) {
 
                     if (ssid.equals(getString(R.string.join_other_network))) {
 
@@ -285,21 +272,7 @@ public class WiFiScanActivity extends AppCompatActivity {
                             goForProvisioning(ssid, password, customData);
                         }
                     }
-
-                }else{
-
-                    if (password1.equals(DEFAULT) || customData1.equals(DEFAULT)){
-                        //Log.d(TAG, "Data not found");
-                    }
-                    else {
-                        etPassword.setVisibility(View.GONE);
-                        etCustomData.setVisibility(View.GONE);
-                        dialog.dismiss();
-                        goForProvisioning(ssidd, password1, customData1);
-                        Log.d(TAG, "Data found");
-                    }
                 }
-            }
         });
 
         builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
