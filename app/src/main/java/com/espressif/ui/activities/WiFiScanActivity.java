@@ -289,7 +289,7 @@ public class WiFiScanActivity extends AppCompatActivity {
                 }else{
 
                     if (password1.equals(DEFAULT) || customData1.equals(DEFAULT)){
-                        Log.d(TAG, "Data not found");
+                        //Log.d(TAG, "Data not found");
                     }
                     else {
                         etPassword.setVisibility(View.GONE);
