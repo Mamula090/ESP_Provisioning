@@ -119,7 +119,7 @@ public class WiFiConfigActivity extends AppCompatActivity {
         tvCancel = findViewById(R.id.btn_cancel);
         etSsid = findViewById(R.id.et_ssid_input);
         etPassword = findViewById(R.id.et_password_input);
-        etCustomData = findViewById(R.id.et_customData);
+        etCustomData = findViewById(R.id.et_customData1);
 
         String deviceName = provisionManager.getEspDevice().getDeviceName();
         if (!TextUtils.isEmpty(deviceName)) {

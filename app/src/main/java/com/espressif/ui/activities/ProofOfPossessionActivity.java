@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -114,7 +115,7 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            showAlertForUsingSavedCredentials();
+                showAlertForUsingSavedCredentials();
         }
     };
 
@@ -164,17 +165,6 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
         finish();
     }
 
-    private void goForProvisioning(String ssid, String password, String customData) {
-
-        finish();
-        Intent provisionIntent = new Intent(getApplicationContext(), ProvisionActivity.class);
-        provisionIntent.putExtras(getIntent());
-        provisionIntent.putExtra(AppConstants.KEY_WIFI_SSID, ssid);
-        provisionIntent.putExtra(AppConstants.KEY_WIFI_PASSWORD, password);
-        provisionIntent.putExtra(AppConstants.KEY_CUSTOM_DATA, customData);
-        startActivity(provisionIntent);
-    }
-
     private void showAlertForDeviceDisconnected() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -196,16 +186,26 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
 
     private void showAlertForUsingSavedCredentials() {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.dialog_use_saved_data, null);
+        builder.setView(dialogView);
+
+        EditText etSsid1 = dialogView.findViewById(R.id.et_ssid1);
+        EditText etPassword1 = dialogView.findViewById(R.id.et_password1);
+        EditText etCustomData1 = dialogView.findViewById(R.id.et_customData1);
+
         builder.setCancelable(false);
         builder.setTitle(R.string.save_data_question_title);
 
-        String ssid, password, customData;
+        String ssid, password, customData, connectedWifi;
 
         sharedPreferences = getSharedPreferences(AppConstants.CRED_PREFERENCES, Context.MODE_PRIVATE);
         ssid = sharedPreferences.getString(AppConstants.KEY_WIFI_SSID, DEFAULT);
         password = sharedPreferences.getString(AppConstants.KEY_WIFI_PASSWORD, DEFAULT);
         customData = sharedPreferences.getString(AppConstants.KEY_CUSTOM_DATA, DEFAULT);
+
+        connectedWifi = sharedPreferences.getString(AppConstants.KEY_CONNECTED_WIFI, DEFAULT);
 
         if (ssid.equals(DEFAULT) || password.equals(DEFAULT) || customData.equals(DEFAULT)){
             Log.d(TAG, "Data not found!");
@@ -214,16 +214,33 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
             Log.d(TAG, "Data found!");
         }
 
+        etSsid1.setText(ssid);
+        etPassword1.setText(password);
+        etCustomData1.setText(customData);
+
+        etSsid1.setEnabled(false);
+        etPassword1.setEnabled(false);
+        etCustomData1.setEnabled(false);
+
         // Set up the buttons
         builder.setPositiveButton(R.string.btn_use, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                goForProvisioning(ssid, password, customData);
+                final String pop = etPop.getText().toString();
+                Log.d(TAG, "POP : " + pop);
+                provisionManager.getEspDevice().setProofOfPossession(pop);
+                dialog.dismiss();
+
+                if(ssid.equals(connectedWifi)){
+                    goForProvisioning(ssid, password, customData);
+                }else{
+                    Log.d(TAG,"SSID is different from connected Wifi");
+                }
             }
         });
 
-        builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.btn_dont_use, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 final String pop = etPop.getText().toString();
@@ -239,5 +256,16 @@ public class ProofOfPossessionActivity extends AppCompatActivity {
             }
         });
         builder.show();
+    }
+
+    private void goForProvisioning(String ssid, String password, String customData) {
+
+        finish();
+        Intent provisionIntent = new Intent(getApplicationContext(), ProvisionActivity.class);
+        provisionIntent.putExtras(getIntent());
+        provisionIntent.putExtra(AppConstants.KEY_WIFI_SSID, ssid);
+        provisionIntent.putExtra(AppConstants.KEY_WIFI_PASSWORD, password);
+        provisionIntent.putExtra(AppConstants.KEY_CUSTOM_DATA, customData);
+        startActivity(provisionIntent);
     }
 }

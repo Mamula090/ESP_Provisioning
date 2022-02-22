@@ -14,6 +14,7 @@
 
 package com.espressif.ui.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,7 +25,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -64,6 +64,8 @@ public class WiFiScanActivity extends AppCompatActivity {
     private ArrayList<WiFiAccessPoint> wifiAPList;
     private ESPProvisionManager provisionManager;
 
+    private SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +101,12 @@ public class WiFiScanActivity extends AppCompatActivity {
 
                 Log.d(TAG, "Device to be connected -" + wifiAPList.get(pos));
                 String ssid = wifiAPList.get(pos).getWifiName();
+                String connectedWifi = ssid;
+
+                sharedPreferences = getSharedPreferences(AppConstants.CRED_PREFERENCES, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(AppConstants.KEY_CONNECTED_WIFI, connectedWifi);
+                editor.apply();
 
                 if (ssid.equals(getString(R.string.join_other_network))) {
                     askForNetwork(wifiAPList.get(pos).getWifiName(), wifiAPList.get(pos).getSecurity());
@@ -212,9 +220,9 @@ public class WiFiScanActivity extends AppCompatActivity {
         final View dialogView = inflater.inflate(R.layout.dialog_wifi_network, null);
         builder.setView(dialogView);
 
-        EditText etSsid = dialogView.findViewById(R.id.et_ssid);
-        EditText etPassword = dialogView.findViewById(R.id.et_password);
-        EditText etCustomData = dialogView.findViewById(R.id.et_customData);
+        EditText etSsid = dialogView.findViewById(R.id.et_ssid1);
+        EditText etPassword = dialogView.findViewById(R.id.et_password1);
+        EditText etCustomData = dialogView.findViewById(R.id.et_customData1);
 
         if (ssid.equals(getString(R.string.join_other_network))) {
 
@@ -279,7 +287,6 @@ public class WiFiScanActivity extends AppCompatActivity {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 dialog.dismiss();
             }
         });
@@ -353,7 +360,6 @@ public class WiFiScanActivity extends AppCompatActivity {
                 finish();
             }
         });
-
         builder.show();
     }
 }

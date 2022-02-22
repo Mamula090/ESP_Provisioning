@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">ESP Provisioning</string>
     <string name="app_name_ble">ESP BLE Prov</string>
@@ -29,7 +29,7 @@
     <string name="btn_no_qr_code">I don\'t have a QR code</string>
     <string name="btn_save">Save</string>
     <string name="btn_use">Use</string>
-    <string name="btn_dont_use">Do not use</string>
+    <string name="btn_dont_use">Don\'t use</string>
     <string name="btn_change_prefix">Change</string>
     <string name="btn_yes">Yes</string>
     <string name="btn_save_credentials">Save Wifi Credentials</string>
