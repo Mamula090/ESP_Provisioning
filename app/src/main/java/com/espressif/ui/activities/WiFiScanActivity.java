@@ -220,9 +220,9 @@ public class WiFiScanActivity extends AppCompatActivity {
         final View dialogView = inflater.inflate(R.layout.dialog_wifi_network, null);
         builder.setView(dialogView);
 
-        EditText etSsid = dialogView.findViewById(R.id.et_ssid1);
-        EditText etPassword = dialogView.findViewById(R.id.et_password1);
-        EditText etCustomData = dialogView.findViewById(R.id.et_customData1);
+        EditText etSsid = dialogView.findViewById(R.id.et_ssid);
+        EditText etPassword = dialogView.findViewById(R.id.et_password);
+        EditText etCustomData = dialogView.findViewById(R.id.et_customData);
 
         if (ssid.equals(getString(R.string.join_other_network))) {
 

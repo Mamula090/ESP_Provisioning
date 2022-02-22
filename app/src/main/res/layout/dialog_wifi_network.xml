@@ -21,7 +21,7 @@
             android:paddingEnd="15dp">
 
             <EditText
-                android:id="@+id/et_ssid1"
+                android:id="@+id/et_ssid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
@@ -48,12 +48,12 @@
                 app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/et_ssid1"
+                app:layout_constraintTop_toBottomOf="@id/et_ssid"
                 app:passwordToggleEnabled="true"
                 app:passwordToggleTint="@color/colorAccent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_password1"
+                    android:id="@+id/et_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_edit_text"
@@ -71,7 +71,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <EditText
-                android:id="@+id/et_customData1"
+                android:id="@+id/et_customData"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_edit_text"
