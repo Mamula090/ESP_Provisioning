@@ -184,7 +184,7 @@ public class ProvisionActivity extends AppCompatActivity {
         if(customData != null){
             sendDataToCustomEndpoint();
             try {
-                sleep(3000);
+                sleep(3500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
